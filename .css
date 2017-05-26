@@ -1,0 +1,16 @@
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+.area {
+  fill: lightsteelblue;
+}
+
+svg {
+  background-color: antiquewhite;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
