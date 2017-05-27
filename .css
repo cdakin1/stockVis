@@ -4,8 +4,18 @@
   stroke-width: 2px;
 }
 
+.line2 {
+  fill: none;
+  stroke: green;
+  stroke-width: 2px;
+}
+
 .area {
   fill: lightsteelblue;
+}
+
+.area2 {
+  fill: grey
 }
 
 svg {
