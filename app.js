@@ -63,7 +63,6 @@ var brush = d3.brush().on("end", brushended),
     idleTimeout,
     idleDelay = 350;
 
-
 function brushended() {
   var s = d3.event.selection;
   if (!s) {
@@ -139,6 +138,13 @@ function zoom() {
       .call(yAxis.tickFormat(d3.format(".0f")));
 
 // add brush
-svg.append("g")
-    .attr("class", "brush")
-    .call(brush);
+function enableZoom() {
+  console.log("zoom enable")
+  svg.append("g")
+      .attr("class", "brush")
+      .call(brush);r
+}
+
+function disableZoom() {
+  d3.select(".brush").remove()
+}
