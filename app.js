@@ -2,7 +2,7 @@ const bboList = stock.bboList;
 const tradeList = stock.tradeList;
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom,
+    height = 600 - margin.top - margin.bottom,
     k = height / width
 // // parse the date / time
 var parseTime = d3.timeParse("%H:%M:%S.%L");
@@ -75,14 +75,7 @@ var svg = d3.select("body").append("svg")
 
 var tradeCircle = document.getElementsByClassName('tradeCircle');
 
-// define tradePrice circle
-// var tradePrice = svg.selectAll("g")
-//     .data(tradeList)
-//     .enter()
-//     .append("g");
-
 //zoom stuff
-
 var brush = d3.brush().on("end", brushended),
     idleTimeout,
     idleDelay = 350;
@@ -171,6 +164,10 @@ var circles = svg.selectAll("dot")
         .attr("cy", function(d) { return y(d.price); })
         .attr("class", "tradeCircle")
         .attr("d", tradeCircle)
+        .each(function(d) {
+          var trade = d3.select(this);
+          d.tradeType === 'E' ? trade.style('fill', 'blue') : trade.style('fill', 'pink')
+        })
         .on("mouseover", function(d) {
             div.transition()
                .duration(200)
@@ -248,13 +245,64 @@ function mousemove() {
   focus.select("text").text(activeD);
 }
 
-function enableZoom() {
-  svg.append("g")
-      .attr("class", "brush")
-      .call(brush);
+var displayTradeSize = false;
+function toggleTradeSize() {
+    if(!displayTradeSize) {
+      displayTradeSize = true;
+      circles.each(function(d) {
+        var trade = d3.select(this);
+        d.shares < 50 ? trade.attr("r", 2) : trade.attr("r", d.shares / 25)
+      })
+    } else {
+      displayTradeSize = false;
+      circles.attr("r", 3.5)
+    }
 }
 
-// button; remove brush
-function disableZoom() {
-  d3.select(".brush").remove()
+var enableZoom = true;
+function toggleZoom() {
+  var button = document.getElementById("toggleZoom");
+  if(enableZoom) {
+    enableZoom = false;
+    button.textContent = "Disable Zoom";
+    svg.append("g")
+        .attr("class", "brush")
+        .call(brush);
+  } else {
+    enableZoom = true;
+    button.textContent = "Enable Zoom";
+    d3.select(".brush").remove();
+  }
+}
+
+function resetZoom() {
+  x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
+  y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
+  zoom();
+}
+
+function toggleVisibility() {
+  var ttv = document.getElementById("toggleTradeVisibility");
+  var vis = ttv.options[ttv.selectedIndex].value;
+  switch(vis) {
+    case 'all':
+        circles.style("visibility", "visible");
+        break;
+    case 'p':
+        circles.each(function(d) {
+          d.tradeType === 'E' ?
+            d3.select(this).style("visibility", "hidden")
+          : d3.select(this).style("visibility", "visible")
+        })
+        break;
+    case 'e':
+        circles.each(function(d) {
+          d.tradeType === 'P' ?
+            d3.select(this).style("visibility", "hidden")
+          : d3.select(this).style("visibility", "visible")
+        })
+        break;
+    case 'none':
+        circles.style("visibility", "hidden");
+  }
 }

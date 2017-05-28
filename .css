@@ -51,6 +51,7 @@ div.tooltip {
 }
 
 svg {
+  shape-rendering: geometricPrecision;
   background-color: #efdca7;
   margin-left: auto;
   margin-right: auto;

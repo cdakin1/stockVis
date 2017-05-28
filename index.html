@@ -8,17 +8,28 @@
     <script type="text/javascript" src="stock.json"></script>
   </head>
   <body>
-hello
-<button onclick="enableZoom()">Zoom</button>
-<button onclick="disableZoom()">Stop Zoom</button>
-<select id="stockPriceType">
-  <option value="ask">Ask</option>
-  <option value="bid">Bid</option>
-</select>
-<select id="toggleMousover" onchange="if (this.selectedIndex >= 0) toggleMouseover();">
-  <option value="trend">Trend Line</option>
-  <option value="trade">Trade Info</option>
-</select>
-<script type="text/javascript" src="app.js"></script>
+    <button onclick="resetZoom()">Reset Zoom</button>
+    </br>
+    <button onclick="toggleZoom()" id="toggleZoom">Enable Zoom</button>
+    </br>
+    <button onclick="toggleTradeSize()">Toggle Trade Size</button>
+    </br>
+    <select id="toggleMousover" onchange="if (this.selectedIndex >= 0) toggleMouseover();">
+      <option value="trade">Trade Info</option>
+      <option value="trend">Trend Line</option>
+    </select>
+    <select id="stockPriceType">
+      <option value="ask">Ask</option>
+      <option value="bid">Bid</option>
+    </select>
+    </br>
+    <select id="toggleTradeVisibility" onchange="if (this.selectedIndex >= 0) toggleVisibility();">
+      <option value="all">Show All Trades</option>
+      <option value="p">Show E Trades</option>
+      <option value="e">Show P Trades</option>
+      <option value="none">Hide All Trades</option>
+    </select>
+    </br>
+    <script type="text/javascript" src="app.js"></script>
   </body>
 </html>
