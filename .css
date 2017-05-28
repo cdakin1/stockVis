@@ -18,6 +18,21 @@
   fill: grey
 }
 
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.focus circle {
+  fill: none;
+  stroke: white;
+}
+
+.floatingText {
+  fill: white;
+  size: 10px;
+}
+
 svg {
   background-color: antiquewhite;
   margin-left: auto;

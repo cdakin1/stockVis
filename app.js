@@ -1,4 +1,5 @@
 const bboList = stock.bboList;
+console.log(stock)
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom,
@@ -47,14 +48,6 @@ var valueline2 = d3.line()
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-    // .call(d3.zoom()
-    //   .scaleExtent([1, 10])
-    //   .on("zoom", function() {
-    //     console.log("zooming")
-    //     svg.attr("transform", d3.event.transform);
-    //     svg.select("xAxis").call(xAxis);
-    //     svg.select("yAxis").call(yAxis);
-    //   }))
     .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
@@ -66,7 +59,6 @@ var brush = d3.brush().on("end", brushended),
 
 function brushended() {
   var s = d3.event.selection;
-  console.log(s)
   //if no selection, reset zoom
   if (!s) {
     if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
@@ -97,7 +89,6 @@ function zoom() {
 
 
 // format the data
-console.log(stock)
 bboList.forEach(function(d) {
     d.timeStr = parseTime(d.timeStr);
     // d.ask = d.ask / 10000;
@@ -122,7 +113,8 @@ y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList,
 svg.append("path")
     .data([bboList])
     .attr("class", "line")
-    .attr("d", valueline);
+    .attr("d", valueline)
+    .append("svg:title")
 
 svg.append("path")
   .data([bboList])
@@ -142,12 +134,48 @@ svg.append("g")
 
 // add brush
 function enableZoom() {
-  console.log("zoom enable")
   svg.append("g")
       .attr("class", "brush")
       .call(brush);
 }
-
+// remove brush
 function disableZoom() {
   d3.select(".brush").remove()
+}
+// code for getting data on mouseover
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .style("display", "none");
+
+focus.append("circle")
+    .attr("r", 4.5);
+
+focus.append("text")
+    .attr("class", "floatingText")
+    .attr("x", 9)
+    .attr("dy", ".35em");
+
+svg.append("rect")
+    .attr("class", "overlay")
+    .attr("width", width)
+    .attr("height", height)
+    .on("mouseover", function() { focus.style("display", null); })
+    .on("mouseout", function() { focus.style("display", "none"); })
+    .on("mousemove", mousemove);
+
+function mousemove() {
+  var spt = document.getElementById("stockPriceType");
+  var priceType = spt.options[spt.selectedIndex].value;
+  var data = bboList;
+  var bisectDate = d3.bisector(function(d) { return d.timeStr; }).left;
+  var x0 = x.invert(d3.mouse(this)[0]),
+      i = bisectDate(data, x0, 1),
+      d0 = data[i - 1],
+      d1 = data[i],
+      d = x0 - d0.timeStr > d1.timeStr - x0 ? d1 : d0,
+      activeD;
+  priceType === 'bid' ? activeD = d.bid : activeD = d.ask;
+
+  focus.attr("transform", "translate(" + x(d.timeStr) + "," + y(activeD) + ")");
+  focus.select("text").text(activeD);
 }
