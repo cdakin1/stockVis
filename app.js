@@ -34,6 +34,7 @@ var y0 = d3.scaleLinear().range([height, 0]);;
 var xAxis = d3.axisBottom(x);
 var yAxis = d3.axisLeft(y);
 
+
 // define the areas
 var area = d3.area()
     .x(function(d) { return x(d.timeStr); })
@@ -166,13 +167,13 @@ var circles = svg.selectAll("dot")
         .attr("d", tradeCircle)
         .each(function(d) {
           var trade = d3.select(this);
-          d.tradeType === 'E' ? trade.style('fill', 'blue') : trade.style('fill', 'pink')
+          d.tradeType === 'E' ? trade.style('fill', 'blue') : trade.style('fill', 'red')
         })
         .on("mouseover", function(d) {
             div.transition()
                .duration(200)
                .style("opacity", .9);
-            div.html("Price: " + d.price + "<br/>" + "#Shares: " + d.shares + "<br/>" + "Type: " + d.tradeType)
+            div.html("Price: " + d.price / 10000 + "<br/>" + "#Shares: " + d.shares + "<br/>" + "Type: " + d.tradeType)
                .style("left", (d3.event.pageX) + "px")
                .style("top", (d3.event.pageY - 100) + "px");
             })
@@ -193,8 +194,11 @@ svg.append("g")
 // add the Y Axis
 svg.append("g")
     .attr("class", "yAxis")
-    .call(yAxis.tickFormat(d3.format(".0f")));
-
+    .attr("id", "yAxis")
+    .call(yAxis.tickFormat(function(d) {
+      d = d/10000;
+      return d3.format("($.2f")(d)
+    }))
 
 // code for getting data on mouseover
 var focus = svg.append("g")
@@ -216,15 +220,19 @@ function toggleMouseover() {
   var tm = document.getElementById("toggleMousover");
   var mouseoverType = tm.options[tm.selectedIndex].value;
 
-  mouseoverType === "trend" ?
+  if(mouseoverType === "trend") {
+    document.getElementById("stockPriceType").style.visibility = "visible";
     svg.append("rect")
        .attr("class", "overlay")
        .attr("width", width)
        .attr("height", height)
        .on("mouseover", function() { focus.style("display", null); })
        .on("mouseout", function() { focus.style("display", "none"); })
-       .on("mousemove", mousemove)
-    : d3.select(".overlay").remove();
+       .on("mousemove", mousemove);
+    } else {
+      document.getElementById("stockPriceType").style.visibility = "hidden";
+      d3.select(".overlay").remove();
+    }
 }
 
 // stock trend tracking

@@ -1,3 +1,8 @@
+.buttons {
+  position: absolute;
+  left: 3%;
+}
+
 .line {
   fill: none;
   stroke: #af7603;
