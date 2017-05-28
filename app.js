@@ -7,24 +7,7 @@ var margin = {top: 20, right: 20, bottom: 30, left: 50},
 // // parse the date / time
 var parseTime = d3.timeParse("%H:%M:%S.%L");
 
-//parse nanoseconds for tradeList object
-var parseNano = function(nano) {
-  var hour = Math.floor(nano / 3600000000000);
-  var temp = nano % 3600000000000;
-  var minute = Math.floor(temp / 60000000000);
-  var temp2 = temp % 60000000000;
-  var second = Math.floor(temp2 / 1000000000);
-  var mil = temp2 % 1000000000;
-  hour = hour.toString()
-  minute = minute.toString()
-  second = second.toString();
-  mil = mil.toString().slice(0, 3)
-  return parseTime(`${hour}:${minute}:${second}.${mil}`)
-}
-
-
-//
-// set the ranges
+// set the ranges, will change on zoom
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
@@ -36,8 +19,7 @@ const y0 = d3.scaleLinear().range([height, 0]);;
 var xAxis = d3.axisBottom(x);
 var yAxis = d3.axisLeft(y);
 
-
-// define the areas
+// define the areas above and below ask/bid lines
 var area = d3.area()
     .x(function(d) { return x(d.timeStr); })
     .y0(height)
@@ -173,7 +155,7 @@ var circles = svg.selectAll("dot")
             div.transition()
                .duration(200)
                .style("opacity", .9);
-            div.html("Price: " + d.price / 10000 + "<br/>" + "#Shares: " + d.shares + "<br/>" + "Type: " + d.tradeType)
+            div.html("Price: $" + d.price / 10000 + "<br/>" + "Shares: " + d.shares + "<br/>" + "Type: " + d.tradeType + "<br/>" + "Ref: " + d.orderReferenceNumber)
                .style("left", (d3.event.pageX) + "px")
                .style("top", (d3.event.pageY - 100) + "px");
             })
@@ -215,26 +197,6 @@ focus.append("text")
     .attr("x", 9)
     .attr("dy", ".35em");
 
-// trade information tracking
-function toggleMouseover() {
-  var tm = document.getElementById("toggleMousover");
-  var mouseoverType = tm.options[tm.selectedIndex].value;
-
-  if(mouseoverType === "trend") {
-    document.getElementById("stockPriceType").style.visibility = "visible";
-    svg.append("rect")
-       .attr("class", "overlay")
-       .attr("width", width)
-       .attr("height", height)
-       .on("mouseover", function() { focus.style("display", null); })
-       .on("mouseout", function() { focus.style("display", "none"); })
-       .on("mousemove", mousemove);
-    } else {
-      document.getElementById("stockPriceType").style.visibility = "hidden";
-      d3.select(".overlay").remove();
-    }
-}
-
 // stock trend tracking
 function mousemove() {
   var spt = document.getElementById("stockPriceType");
@@ -251,66 +213,4 @@ function mousemove() {
 
   focus.attr("transform", "translate(" + x(d.timeStr) + "," + y(activeD) + ")");
   focus.select("text").text(activeD / 10000);
-}
-
-var displayTradeSize = false;
-function toggleTradeSize() {
-    if(!displayTradeSize) {
-      displayTradeSize = true;
-      circles.each(function(d) {
-        var trade = d3.select(this);
-        d.shares < 50 ? trade.attr("r", 2) : trade.attr("r", d.shares / 25)
-      })
-    } else {
-      displayTradeSize = false;
-      circles.attr("r", 3.5)
-    }
-}
-
-var enableZoom = true;
-function toggleZoom() {
-  var button = document.getElementById("toggleZoom");
-  if(enableZoom) {
-    enableZoom = false;
-    button.textContent = "Disable Zoom";
-    svg.append("g")
-        .attr("class", "brush")
-        .call(brush);
-  } else {
-    enableZoom = true;
-    button.textContent = "Enable Zoom";
-    d3.select(".brush").remove();
-  }
-}
-
-function resetZoom() {
-  x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
-  y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
-  zoom();
-}
-
-function toggleVisibility() {
-  var ttv = document.getElementById("toggleTradeVisibility");
-  var vis = ttv.options[ttv.selectedIndex].value;
-  switch(vis) {
-    case 'all':
-        circles.style("visibility", "visible");
-        break;
-    case 'p':
-        circles.each(function(d) {
-          d.tradeType === 'E' ?
-            d3.select(this).style("visibility", "hidden")
-          : d3.select(this).style("visibility", "visible")
-        })
-        break;
-    case 'e':
-        circles.each(function(d) {
-          d.tradeType === 'P' ?
-            d3.select(this).style("visibility", "hidden")
-          : d3.select(this).style("visibility", "visible")
-        })
-        break;
-    case 'none':
-        circles.style("visibility", "hidden");
-  }
 }
