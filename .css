@@ -1,21 +1,21 @@
 .line {
   fill: none;
-  stroke: steelblue;
+  stroke: #af7603;
   stroke-width: 2px;
 }
 
 .line2 {
   fill: none;
-  stroke: green;
+  stroke: #54845d;
   stroke-width: 2px;
 }
 
 .area {
-  fill: lightsteelblue;
+  fill: #54845d;
 }
 
 .area2 {
-  fill: grey
+  fill: #af7603;
 }
 
 .overlay {
@@ -29,12 +29,12 @@
 }
 
 .floatingText {
-  fill: white;
+  fill: black;
   size: 10px;
 }
 
 svg {
-  background-color: antiquewhite;
+  background-color: #efdca7;
   margin-left: auto;
   margin-right: auto;
   display: block;

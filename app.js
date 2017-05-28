@@ -1,11 +1,28 @@
 const bboList = stock.bboList;
-console.log(stock)
+const tradeList = stock.tradeList;
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom,
     k = height / width
 // // parse the date / time
 var parseTime = d3.timeParse("%H:%M:%S.%L");
+
+
+var parseNano = function(nano) {
+  let hour = Math.floor(nano / 3600000000000);
+  let temp = nano % 3600000000000;
+  let minute = Math.floor(temp / 60000000000);
+  let temp2 = temp % 60000000000;
+  let second = Math.floor(temp2 / 1000000000);
+  let mil = temp2 % 1000000000;
+  hour = hour.toString()
+  minute = minute.toString()
+  second = second.toString();
+  mil = mil.toString().slice(0, 3)
+  return parseTime(`${hour}:${minute}:${second}.${mil}`)
+}
+
+
 //
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
@@ -94,6 +111,11 @@ bboList.forEach(function(d) {
     // d.ask = d.ask / 10000;
     // d.bid = d.bid / 10000;
 });
+
+tradeList.forEach(function(d) {
+  d.time = parseNano(d.time);
+})
+console.log(tradeList)
 
 // scale the range of the data
 x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
