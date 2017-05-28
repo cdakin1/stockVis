@@ -7,7 +7,7 @@ var margin = {top: 20, right: 20, bottom: 30, left: 50},
 // // parse the date / time
 var parseTime = d3.timeParse("%H:%M:%S.%L");
 
-
+//parse nanoseconds for tradeList object
 var parseNano = function(nano) {
   let hour = Math.floor(nano / 3600000000000);
   let temp = nano % 3600000000000;
@@ -34,7 +34,7 @@ var y0 = d3.scaleLinear().range([height, 0]);;
 var xAxis = d3.axisBottom(x);
 var yAxis = d3.axisLeft(y);
 
-// define the area
+// define the areas
 var area = d3.area()
     .x(function(d) { return x(d.timeStr); })
     .y0(height)
@@ -47,7 +47,7 @@ var area2 = d3.area()
   .y1(function(d) { return y(d.ask); })
   .curve(d3.curveStepAfter);
 
-// define the line
+// define the lines for bid/ask
 var valueline = d3.line()
     .x(function(d) { return x(d.timeStr); })
     .y(function(d) { return y(d.ask); })
@@ -58,6 +58,10 @@ var valueline2 = d3.line()
     .y(function(d) { return y(d.bid); })
     .curve(d3.curveStepAfter);
 
+// define div for tooltip
+var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 // append the svg obgect to the body of the page
 // appends a 'group' element to 'svg'
@@ -68,6 +72,15 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
+
+var tradeCircle = document.getElementsByClassName('tradeCircle');
+
+// define tradePrice circle
+// var tradePrice = svg.selectAll("g")
+//     .data(tradeList)
+//     .enter()
+//     .append("g");
+
 //zoom stuff
 
 var brush = d3.brush().on("end", brushended),
@@ -76,7 +89,7 @@ var brush = d3.brush().on("end", brushended),
 
 function brushended() {
   var s = d3.event.selection;
-  //if no selection, reset zoom
+  //if no selection, reset zoom (double click)
   if (!s) {
     if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
     x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
@@ -102,6 +115,10 @@ function zoom() {
   svg.select(".line2").transition(t).attr("d", valueline2);
   svg.select(".area").transition(t).attr("d", area);
   svg.select(".area2").transition(t).attr("d", area2);
+  svg.selectAll(".tradeCircle").transition(t)
+     .attr("cx", function(d) { return x(d.time); })
+     .attr("cy", function(d) { return y(d.price); });
+
 }
 
 
@@ -115,12 +132,13 @@ bboList.forEach(function(d) {
 tradeList.forEach(function(d) {
   d.time = parseNano(d.time);
 })
-console.log(tradeList)
+
 
 // scale the range of the data
 x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
 y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
-// add the area
+
+// add the areas
   svg.append("path")
      .data([bboList])
      .attr("class", "area")
@@ -131,7 +149,7 @@ y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList,
      .attr("class", "area2")
      .attr("d", area2);
 
-// add the valueline path.
+// add the valueline path
 svg.append("path")
     .data([bboList])
     .attr("class", "line")
@@ -139,9 +157,35 @@ svg.append("path")
     .append("svg:title")
 
 svg.append("path")
-  .data([bboList])
-  .attr("class", "line2")
-  .attr("d", valueline2)
+    .data([bboList])
+    .attr("class", "line2")
+    .attr("d", valueline2)
+
+// add tradePrice circles
+var circles = svg.selectAll("dot")
+        .data(tradeList)
+        .enter()
+        .append("circle")
+        .attr("r", 3.5)
+        .attr("cx", function(d) { return x(d.time); })
+        .attr("cy", function(d) { return y(d.price); })
+        .attr("class", "tradeCircle")
+        .attr("d", tradeCircle)
+        .on("mouseover", function(d) {
+            div.transition()
+               .duration(200)
+               .style("opacity", .9);
+            div.html("Price: " + d.price + "<br/>" + "#Shares: " + d.shares + "<br/>" + "Type: " + d.tradeType)
+               .style("left", (d3.event.pageX) + "px")
+               .style("top", (d3.event.pageY - 100) + "px");
+            })
+        .on("mouseout", function(d) {
+            div.transition()
+               .duration(500)
+               .style("opacity", 0);
+        });
+
+
 
 // add the X Axis
 svg.append("g")
@@ -154,37 +198,39 @@ svg.append("g")
     .attr("class", "yAxis")
     .call(yAxis.tickFormat(d3.format(".0f")));
 
-// add brush
-function enableZoom() {
-  svg.append("g")
-      .attr("class", "brush")
-      .call(brush);
-}
-// remove brush
-function disableZoom() {
-  d3.select(".brush").remove()
-}
+
 // code for getting data on mouseover
 var focus = svg.append("g")
     .attr("class", "focus")
     .style("display", "none");
 
+//price circle on graph
 focus.append("circle")
     .attr("r", 4.5);
 
+//price text on graph
 focus.append("text")
     .attr("class", "floatingText")
     .attr("x", 9)
     .attr("dy", ".35em");
 
-svg.append("rect")
-    .attr("class", "overlay")
-    .attr("width", width)
-    .attr("height", height)
-    .on("mouseover", function() { focus.style("display", null); })
-    .on("mouseout", function() { focus.style("display", "none"); })
-    .on("mousemove", mousemove);
+// trade information tracking
+function toggleMouseover() {
+  var tm = document.getElementById("toggleMousover");
+  var mouseoverType = tm.options[tm.selectedIndex].value;
 
+  mouseoverType === "trend" ?
+    svg.append("rect")
+       .attr("class", "overlay")
+       .attr("width", width)
+       .attr("height", height)
+       .on("mouseover", function() { focus.style("display", null); })
+       .on("mouseout", function() { focus.style("display", "none"); })
+       .on("mousemove", mousemove)
+    : d3.select(".overlay").remove();
+}
+
+// stock trend tracking
 function mousemove() {
   var spt = document.getElementById("stockPriceType");
   var priceType = spt.options[spt.selectedIndex].value;
@@ -200,4 +246,15 @@ function mousemove() {
 
   focus.attr("transform", "translate(" + x(d.timeStr) + "," + y(activeD) + ")");
   focus.select("text").text(activeD);
+}
+
+function enableZoom() {
+  svg.append("g")
+      .attr("class", "brush")
+      .call(brush);
+}
+
+// button; remove brush
+function disableZoom() {
+  d3.select(".brush").remove()
 }

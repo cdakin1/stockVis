@@ -18,6 +18,10 @@
   fill: #af7603;
 }
 
+.tradeCircle {
+  fill: black;
+}
+
 .overlay {
   fill: none;
   pointer-events: all;
@@ -31,6 +35,19 @@
 .floatingText {
   fill: black;
   size: 10px;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: auto;
+    height: auto;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
 }
 
 svg {

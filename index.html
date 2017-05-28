@@ -15,6 +15,10 @@ hello
   <option value="ask">Ask</option>
   <option value="bid">Bid</option>
 </select>
+<select id="toggleMousover" onchange="if (this.selectedIndex >= 0) toggleMouseover();">
+  <option value="trend">Trend Line</option>
+  <option value="trade">Trade Info</option>
+</select>
 <script type="text/javascript" src="app.js"></script>
   </body>
 </html>
