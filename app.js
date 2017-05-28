@@ -56,7 +56,8 @@ var svg = d3.select("body").append("svg")
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+          "translate(" + margin.left + "," + margin.top + ")")
+
 
 var tradeCircle = document.getElementsByClassName('tradeCircle');
 
@@ -196,6 +197,22 @@ focus.append("text")
     .attr("class", "floatingText")
     .attr("x", 9)
     .attr("dy", ".35em");
+
+//Labels for x & y axis
+svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x",0 - (height * .05))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Price($)");
+
+svg.append("text")
+    .attr("transform",
+          "translate(" + (width/2) + " ," +
+                         (height + margin.top - 22) + ")")
+    .style("text-anchor", "middle")
+    .text("Time");
+
 
 // stock trend tracking
 function mousemove() {
