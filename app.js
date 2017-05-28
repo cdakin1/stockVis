@@ -115,7 +115,7 @@ tradeList.forEach(function(d) {
 x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
 y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
 
-// add the areas
+// add areas above and below ask/bid lines
   svg.append("path")
      .data([bboList])
      .attr("class", "area")
@@ -138,7 +138,7 @@ svg.append("path")
     .attr("class", "line2")
     .attr("d", bidLine)
 
-// add tradePrice circles
+// add trade information nodes
 var circles = svg.selectAll("dot")
         .data(tradeList)
         .enter()
@@ -229,5 +229,5 @@ function mousemove() {
   priceType === 'bid' ? activeD = d.bid : activeD = d.ask;
 
   focus.attr("transform", "translate(" + x(d.timeStr) + "," + y(activeD) + ")");
-  focus.select("text").text(activeD / 10000);
+  focus.select("text").text(activeD / 10000).style("font-weight", "bold");
 }
