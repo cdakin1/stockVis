@@ -1,15 +1,16 @@
+const bboList = stock.bboList;
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom,
-    k = height / width,
-    x0 = [-4.5, 4.5],
-    y0 = [-4.5 * k, 4.5 * k]
+    k = height / width
 // // parse the date / time
 var parseTime = d3.timeParse("%H:%M:%S.%L");
 //
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
+var x0 = d3.scaleTime().range([0, width]);;
+var y0 = d3.scaleLinear().range([height, 0]);;
 
 //define axes
 var xAxis = d3.axisBottom(x);
@@ -65,11 +66,14 @@ var brush = d3.brush().on("end", brushended),
 
 function brushended() {
   var s = d3.event.selection;
+  console.log(s)
+  //if no selection, reset zoom
   if (!s) {
     if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-    x.domain(x0);
-    y.domain(y0);
+    x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
+    y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
   } else {
+  //set zoom to selection
     x.domain([s[0][0], s[1][0]].map(x.invert, x));
     y.domain([s[1][1], s[0][1]].map(y.invert, y));
     svg.select(".brush").call(brush.move, null);
@@ -91,58 +95,57 @@ function zoom() {
   svg.select(".area2").transition(t).attr("d", area2);
 }
 
-//////////
-  const bboList = stock.bboList
-  // format the data
-  console.log(stock)
-  bboList.forEach(function(d) {
-      d.timeStr = parseTime(d.timeStr);
-      // d.ask = d.ask / 10000;
-      // d.bid = d.bid / 10000;
-  });
 
-  // scale the range of the data
-  x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
-  y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
-  // add the area
-    svg.append("path")
-       .data([bboList])
-       .attr("class", "area")
-       .attr("d", area);
+// format the data
+console.log(stock)
+bboList.forEach(function(d) {
+    d.timeStr = parseTime(d.timeStr);
+    // d.ask = d.ask / 10000;
+    // d.bid = d.bid / 10000;
+});
 
-    svg.append("path")
-       .data([bboList])
-       .attr("class", "area2")
-       .attr("d", area2);
-
-  // // add the valueline path.
+// scale the range of the data
+x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
+y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
+// add the area
   svg.append("path")
-      .data([bboList])
-      .attr("class", "line")
-      .attr("d", valueline);
+     .data([bboList])
+     .attr("class", "area")
+     .attr("d", area);
 
   svg.append("path")
+     .data([bboList])
+     .attr("class", "area2")
+     .attr("d", area2);
+
+// add the valueline path.
+svg.append("path")
     .data([bboList])
-    .attr("class", "line2")
-    .attr("d", valueline2)
-  //
-  // // add the X Axis
-  svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .attr("class", "xAxis")
-      .call(xAxis);
-  //
-  // add the Y Axis
-  svg.append("g")
-      .attr("class", "yAxis")
-      .call(yAxis.tickFormat(d3.format(".0f")));
+    .attr("class", "line")
+    .attr("d", valueline);
+
+svg.append("path")
+  .data([bboList])
+  .attr("class", "line2")
+  .attr("d", valueline2)
+
+// add the X Axis
+svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .attr("class", "xAxis")
+    .call(xAxis);
+
+// add the Y Axis
+svg.append("g")
+    .attr("class", "yAxis")
+    .call(yAxis.tickFormat(d3.format(".0f")));
 
 // add brush
 function enableZoom() {
   console.log("zoom enable")
   svg.append("g")
       .attr("class", "brush")
-      .call(brush);r
+      .call(brush);
 }
 
 function disableZoom() {
