@@ -1,5 +1,5 @@
-const bboList = stock.bboList;
-const tradeList = stock.tradeList;
+var bboList = stock.bboList;
+var tradeList = stock.tradeList;
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom,
@@ -9,12 +9,12 @@ var parseTime = d3.timeParse("%H:%M:%S.%L");
 
 //parse nanoseconds for tradeList object
 var parseNano = function(nano) {
-  let hour = Math.floor(nano / 3600000000000);
-  let temp = nano % 3600000000000;
-  let minute = Math.floor(temp / 60000000000);
-  let temp2 = temp % 60000000000;
-  let second = Math.floor(temp2 / 1000000000);
-  let mil = temp2 % 1000000000;
+  var hour = Math.floor(nano / 3600000000000);
+  var temp = nano % 3600000000000;
+  var minute = Math.floor(temp / 60000000000);
+  var temp2 = temp % 60000000000;
+  var second = Math.floor(temp2 / 1000000000);
+  var mil = temp2 % 1000000000;
   hour = hour.toString()
   minute = minute.toString()
   second = second.toString();
@@ -27,8 +27,10 @@ var parseNano = function(nano) {
 // set the ranges
 var x = d3.scaleTime().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
-var x0 = d3.scaleTime().range([0, width]);;
-var y0 = d3.scaleLinear().range([height, 0]);;
+
+// original ranges not to be changed
+const x0 = d3.scaleTime().range([0, width]);;
+const y0 = d3.scaleLinear().range([height, 0]);;
 
 //define axes
 var xAxis = d3.axisBottom(x);
@@ -49,12 +51,12 @@ var area2 = d3.area()
   .curve(d3.curveStepAfter);
 
 // define the lines for bid/ask
-var valueline = d3.line()
+var askLine = d3.line()
     .x(function(d) { return x(d.timeStr); })
     .y(function(d) { return y(d.ask); })
     .curve(d3.curveStepAfter);
 
-var valueline2 = d3.line()
+var bidLine = d3.line()
     .x(function(d) { return x(d.timeStr); })
     .y(function(d) { return y(d.bid); })
     .curve(d3.curveStepAfter);
@@ -105,8 +107,8 @@ function zoom() {
   var t = svg.transition().duration(750);
   svg.select(".xAxis").transition(t).call(xAxis);
   svg.select(".yAxis").transition(t).call(yAxis);
-  svg.select(".line").transition(t).attr("d", valueline);
-  svg.select(".line2").transition(t).attr("d", valueline2);
+  svg.select(".line").transition(t).attr("d", askLine);
+  svg.select(".line2").transition(t).attr("d", bidLine);
   svg.select(".area").transition(t).attr("d", area);
   svg.select(".area2").transition(t).attr("d", area2);
   svg.selectAll(".tradeCircle").transition(t)
@@ -119,8 +121,6 @@ function zoom() {
 // format the data
 bboList.forEach(function(d) {
     d.timeStr = parseTime(d.timeStr);
-    // d.ask = d.ask / 10000;
-    // d.bid = d.bid / 10000;
 });
 
 tradeList.forEach(function(d) {
@@ -143,17 +143,17 @@ y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList,
      .attr("class", "area2")
      .attr("d", area2);
 
-// add the valueline path
+// add the askLine path
 svg.append("path")
     .data([bboList])
     .attr("class", "line")
-    .attr("d", valueline)
+    .attr("d", askLine)
     .append("svg:title")
 
 svg.append("path")
     .data([bboList])
     .attr("class", "line2")
-    .attr("d", valueline2)
+    .attr("d", bidLine)
 
 // add tradePrice circles
 var circles = svg.selectAll("dot")
@@ -250,7 +250,7 @@ function mousemove() {
   priceType === 'bid' ? activeD = d.bid : activeD = d.ask;
 
   focus.attr("transform", "translate(" + x(d.timeStr) + "," + y(activeD) + ")");
-  focus.select("text").text(activeD);
+  focus.select("text").text(activeD / 10000);
 }
 
 var displayTradeSize = false;
