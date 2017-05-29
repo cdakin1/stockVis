@@ -8,14 +8,17 @@ function getMouseoverType() {
 }
 
 function setMouseoverNote() {
-  var text = !enableZoom ? "Disable zoom & " : '';
+  var text = !enableZoom ? "Disable zoom & m" : 'M';
   getMouseoverType() === "trend" ?
-    document.getElementById("mouseoverNote").innerHTML = text + "Mouse over chart for price"
-  : document.getElementById("mouseoverNote").innerHTML = text + "Mouse over trade for details"
+    document.getElementById("mouseoverNote").innerHTML = text + "ouse over chart for price"
+  : document.getElementById("mouseoverNote").innerHTML = text + "ouse over trade for details"
 }
 
 function toggleMouseover() {
   setMouseoverNote();
+  if(!enableZoom) {
+    toggleZoom();
+  }
   if(getMouseoverType() === "trend") {
     document.getElementById("stockPriceType").style.visibility = "visible";
     svg.append("rect")
@@ -27,7 +30,7 @@ function toggleMouseover() {
        .on("mousemove", mousemove);
     } else {
       document.getElementById("stockPriceType").style.visibility = "hidden";
-      d3.select(".overlay").remove();
+      d3.selectAll(".overlay").remove();
     }
 }
 

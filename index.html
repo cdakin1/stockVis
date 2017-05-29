@@ -8,14 +8,11 @@
     <script type="text/javascript" src="stock.json"></script>
   </head>
   <body>
-    <div class="buttons">
+    <div class="container">
       <button id="toggleZoom" onclick="toggleZoom()">Enable Zoom</button>
       <button id="resetZoom" onclick="resetZoom()" style="visibility: hidden">Reset Zoom</button>
       </br>
       <text class="note" id="zoomNote" style="visibility: hidden">Highlight area to zoom</text>
-      </br>
-      <button onclick="toggleTradeSize()">Toggle Trade Size</button>
-      </br>
       </br>
       <select id="toggleMouseover" onchange="if (this.selectedIndex >= 0) toggleMouseover();">
         <option value="trade">Trade Info</option>
@@ -35,6 +32,7 @@
         <option value="none">Hide All Trades</option>
       </select>
       </br>
+      <button onclick="toggleTradeSize()">Toggle Trade Size</button>
     </div>
     <script type="text/javascript" src="js/libs.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
