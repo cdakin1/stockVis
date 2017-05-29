@@ -1,12 +1,22 @@
 var displayTradeSize = false,
     enableZoom = true;
-
 // trade information tracking
-function toggleMouseover() {
-  var tm = document.getElementById("toggleMousover");
-  var mouseoverType = tm.options[tm.selectedIndex].value;
 
-  if(mouseoverType === "trend") {
+function getMouseoverType() {
+  var tm = document.getElementById("toggleMouseover");
+  return mouseoverType = tm.options[tm.selectedIndex].value;
+}
+
+function setMouseoverNote() {
+  var text = !enableZoom ? "Disable zoom & " : '';
+  getMouseoverType() === "trend" ?
+    document.getElementById("mouseoverNote").innerHTML = text + "Mouse over chart for price"
+  : document.getElementById("mouseoverNote").innerHTML = text + "Mouse over trade for details"
+}
+
+function toggleMouseover() {
+  setMouseoverNote();
+  if(getMouseoverType() === "trend") {
     document.getElementById("stockPriceType").style.visibility = "visible";
     svg.append("rect")
        .attr("class", "overlay")
@@ -39,13 +49,17 @@ function toggleTradeSize() {
 function toggleZoom() {
   var button = document.getElementById("toggleZoom");
   if(enableZoom) {
+    document.getElementById("zoomNote").style.visibility = "visible";
     enableZoom = false;
+    setMouseoverNote();
     button.textContent = "Disable Zoom";
     svg.append("g")
         .attr("class", "brush")
         .call(brush);
   } else {
+    document.getElementById("zoomNote").style.visibility = "hidden";
     enableZoom = true;
+    setMouseoverNote();
     button.textContent = "Enable Zoom";
     d3.select(".brush").remove();
   }
@@ -53,6 +67,7 @@ function toggleZoom() {
 
 // reset zoom to original view
 function resetZoom() {
+  document.getElementById("resetZoom").style.visibility = "hidden";
   x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
   y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
   zoom();

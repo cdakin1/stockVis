@@ -9,13 +9,15 @@
   </head>
   <body>
     <div class="buttons">
-      <button onclick="resetZoom()">Reset Zoom</button>
+      <button id="toggleZoom" onclick="toggleZoom()">Enable Zoom</button>
+      <button id="resetZoom" onclick="resetZoom()" style="visibility: hidden">Reset Zoom</button>
       </br>
-      <button onclick="toggleZoom()" id="toggleZoom">Enable Zoom</button>
+      <text class="note" id="zoomNote" style="visibility: hidden">Highlight area to zoom</text>
       </br>
       <button onclick="toggleTradeSize()">Toggle Trade Size</button>
       </br>
-      <select id="toggleMousover" onchange="if (this.selectedIndex >= 0) toggleMouseover();">
+      </br>
+      <select id="toggleMouseover" onchange="if (this.selectedIndex >= 0) toggleMouseover();">
         <option value="trade">Trade Info</option>
         <option value="trend">Price Point</option>
       </select>
@@ -23,6 +25,8 @@
         <option value="ask">Ask</option>
         <option value="bid">Bid</option>
       </select>
+      </br>
+      <text class="note" id="mouseoverNote">Mouse over trade for details</text>
       </br>
       <select id="toggleTradeVisibility" onchange="if (this.selectedIndex >= 0) toggleVisibility();">
         <option value="all">Show All Trades</option>

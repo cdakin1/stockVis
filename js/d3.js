@@ -72,10 +72,12 @@ function brushended() {
   //if no selection, reset zoom (double click)
   if (!s) {
     if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+    document.getElementById("resetZoom").style.visibility = "hidden";
     x.domain(d3.extent(bboList, function(d) { return d.timeStr; }));
     y.domain([d3.min(bboList, function(d) { return d.bid * 0.995 }), d3.max(bboList, function(d) { return d.ask * 1.005 ; })]);
   } else {
   //set zoom to selection
+    document.getElementById("resetZoom").style.visibility = "visible";
     x.domain([s[0][0], s[1][0]].map(x.invert, x));
     y.domain([s[1][1], s[0][1]].map(y.invert, y));
     svg.select(".brush").call(brush.move, null);
