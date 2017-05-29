@@ -4,6 +4,7 @@ var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom,
     k = height / width
+
 // // parse the date / time
 var parseTime = d3.timeParse("%H:%M:%S.%L");
 
@@ -107,7 +108,7 @@ bboList.forEach(function(d) {
 });
 
 tradeList.forEach(function(d) {
-  d.time = parseNano(d.time);
+  d.time = parseNano(d.time); //parseNano in ./libs.js
 })
 
 
